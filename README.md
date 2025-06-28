@@ -8,6 +8,7 @@ Asynchronous TCP echo server
 mkdir build && cd build
 cmake ..
 make
+```
 
 # Dependencies
 
