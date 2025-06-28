@@ -1,6 +1,6 @@
 # TCP Echo Server
 
-Asynchronous TCP echo server
+Asynchronous TCP echo server made with coroutines
 
 ## Build
 
