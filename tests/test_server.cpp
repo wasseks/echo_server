@@ -64,7 +64,11 @@ TEST(EchoServerTest, ConnectionCount) {
 TEST(EchoServerTest, StressTest) {
     boost::asio::io_context io_context;
     Server server(io_context, 12345);
-    std::thread server_thread([&io_context] { io_context.run(); });
+    const int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    for (int i = 0; i < num_threads; ++i) {
+        threads.emplace_back([&io_context] { io_context.run(); });
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     const int num_clients = 2000;
@@ -80,7 +84,6 @@ TEST(EchoServerTest, StressTest) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     ASSERT_EQ(server.get_connection_count(), num_clients);
 
-    // Отправляем данные и проверяем ответ
     std::string message = "Stress test!";
     for (int i = 0; i < num_clients; ++i) {
         boost::asio::write(*clients[i], boost::asio::buffer(message));
@@ -91,7 +94,6 @@ TEST(EchoServerTest, StressTest) {
         ASSERT_EQ(std::string(buffer, length), message);
     }
 
-    // Закрываем все соединения
     for (auto& client : clients) {
         client->close();
     }
@@ -100,7 +102,9 @@ TEST(EchoServerTest, StressTest) {
     ASSERT_EQ(server.get_connection_count(), 0);
 
     io_context.stop();
-    server_thread.join();
+    for (auto& t : threads) {
+        t.join();
+    }
 }
 
 int main(int argc, char** argv) {

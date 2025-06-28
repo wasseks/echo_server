@@ -1,0 +1,46 @@
+name: CI/CD for Echo Server
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev libgtest-dev cmake g++
+
+    - name: Create build directory
+      run: mkdir build && cd build
+
+    - name: Configure CMake
+      run: cmake ..
+      working-directory: build
+
+    - name: Build project
+      run: make
+      working-directory: build
+
+    - name: Run tests
+      run: ./test_server
+      working-directory: build
+
+    - name: Upload artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: echo-server-binaries
+        path: |
+          build/echo_server
+          build/test_server

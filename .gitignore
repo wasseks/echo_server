@@ -1,0 +1,4 @@
+build/
+*.o
+echo_server
+test_server

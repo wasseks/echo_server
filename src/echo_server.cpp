@@ -7,7 +7,6 @@ Session::Session(boost::asio::io_context& io_context, std::atomic<int>& connecti
 Session::~Session() {
     socket_.close();
     connection_count_.fetch_sub(1, std::memory_order_relaxed);
-    std::cout << "Session closed, total connections: " << connection_count_ << "\n";
 }
 
 tcp::socket& Session::socket() { return socket_; }
@@ -24,7 +23,6 @@ void Session::do_read() {
             if (!ec) {
                 do_write(length);
             } else {
-                std::cout << "Client disconnected: " << ec.message() << "\n";
                 socket_.close();
             }
         });
@@ -39,7 +37,6 @@ void Session::do_write(std::size_t length) {
             if (!ec) {
                 do_read();
             } else {
-                std::cout << "Write error: " << ec.message() << "\n";
                 socket_.close();
             }
         });
@@ -66,7 +63,6 @@ void Server::do_accept() {
         [this, session](boost::system::error_code ec) {
             if (!ec) {
                 connection_count_.fetch_add(1, std::memory_order_relaxed);
-                std::cout << "New connection, total: " << connection_count_ << "\n";
                 session->start();
             } else {
                 std::cerr << "Accept error: " << ec.message() << "\n";
