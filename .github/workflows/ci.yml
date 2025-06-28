@@ -32,8 +32,12 @@ jobs:
       run: make
       working-directory: build
 
-    - name: Run tests
-      run: ./test_server
+    - name: Run tests with ThreadSanitizer
+      run: ./test_server_tsan
+      working-directory: build
+
+    - name: Run tests with AddressSanitizer
+      run: ./test_server_asan
       working-directory: build
 
     - name: Upload artifacts
@@ -43,4 +47,5 @@ jobs:
         name: echo-server-binaries
         path: |
           build/echo_server
-          build/test_server
+          build/test_server_tsan
+          build/test_server_asan

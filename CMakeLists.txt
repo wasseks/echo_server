@@ -12,6 +12,14 @@ include_directories(${Boost_INCLUDE_DIRS} include)
 add_executable(echo_server src/echo_server.cpp main.cpp)
 target_link_libraries(echo_server ${Boost_LIBRARIES} Threads::Threads)
 
-# test echo_server
-add_executable(test_server tests/test_server.cpp src/echo_server.cpp)
-target_link_libraries(test_server ${Boost_LIBRARIES} Threads::Threads GTest::GTest GTest::Main)
+# Tests with ThreadSanitizer
+add_executable(test_server_tsan tests/test_server.cpp src/echo_server.cpp)
+target_compile_options(test_server_tsan PRIVATE -fsanitize=thread -g)
+target_link_options(test_server_tsan PRIVATE -fsanitize=thread)
+target_link_libraries(test_server_tsan ${Boost_LIBRARIES} Threads::Threads GTest::GTest GTest::Main)
+
+# Tests with AddressSanitizer
+add_executable(test_server_asan tests/test_server.cpp src/echo_server.cpp)
+target_compile_options(test_server_asan PRIVATE -fsanitize=address -g)
+target_link_options(test_server_asan PRIVATE -fsanitize=address)
+target_link_libraries(test_server_asan ${Boost_LIBRARIES} Threads::Threads GTest::GTest GTest::Main)
