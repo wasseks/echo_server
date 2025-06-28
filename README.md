@@ -10,8 +10,14 @@ cmake ..
 make
 ```
 
-# Dependencies
+## Run
 
-Boost.Asio
-Google Test
-CMake
+```bash
+./echo_server
+```
+
+## Dependencies
+
+- Boost.Asio  
+- Google Test  
+- CMake
